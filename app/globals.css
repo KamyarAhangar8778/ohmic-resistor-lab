@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   LOCALLY BUNDLED FONTS (ZERO EXTERNAL REQUESTS, 100% RELIABLE)
+   ========================================================================== */
+
+/* Vazirmatn (Persian Text & Natural Persian Spacing) */
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-400.woff2') format('woff2');
+  unicode-range: U+0020, U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-500.woff2') format('woff2');
+  unicode-range: U+0020, U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-600.woff2') format('woff2');
+  unicode-range: U+0020, U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-700.woff2') format('woff2');
+  unicode-range: U+0020, U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+/* Kode Mono (English Latin letters & symbols) */
+@font-face {
+  font-family: 'Kode Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/kodemono-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+03A9, U+2126;
+}
+
+@font-face {
+  font-family: 'Kode Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/kodemono-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+03A9, U+2126;
+}
+
+@font-face {
+  font-family: 'Kode Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/kodemono-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+03A9, U+2126;
+}
+
+@theme {
+  --font-sans: 'Vazirmatn', 'Kode Mono', system-ui, sans-serif;
+  --font-mono: 'Kode Mono', 'Vazirmatn', monospace;
+}
+
+@layer base {
+  :root {
+    --bg-canvas: #09090b;
+    --bg-surface: #121215;
+    --bg-elevated: #18181b;
+    --border-subtle: #27272a;
+    --border-active: #3f3f46;
+    --text-primary: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-faint: #71717a;
+    --accent: #e4e4e7;
+    --accent-hover: #ffffff;
+  }
+
+  /* Universal typography:
+     - Persian words & word spaces match 'Vazirmatn'
+     - Latin/English letters match 'Kode Mono'
+     - Normal word-spacing and letter-spacing for natural Persian script
+  */
+  *,
+  *::before,
+  *::after,
+  html,
+  body,
+  button,
+  p,
+  span,
+  div,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Vazirmatn', 'Kode Mono', system-ui, -apple-system, sans-serif !important;
+    letter-spacing: normal;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  /* Monospace typography strictly for inputs, raw numbers, and technical readouts;
+     gracefully falls back to Vazirmatn for Persian characters */
+  .font-mono,
+  .tabular-nums,
+  input {
+    font-family: 'Kode Mono', 'Vazirmatn', monospace !important;
+  }
+
+  .font-sans,
+  .font-vazir {
+    font-family: 'Vazirmatn', 'Kode Mono', system-ui, -apple-system, sans-serif !important;
+  }
+
+  ::selection {
+    background-color: #27272a;
+    color: #ffffff;
+  }
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Remove number input spin buttons for clean custom Park UI steppers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
