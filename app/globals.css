@@ -70,8 +70,8 @@
 }
 
 @theme {
-  --font-sans: 'Vazirmatn', 'Kode Mono', system-ui, sans-serif;
-  --font-mono: 'Kode Mono', 'Vazirmatn', monospace;
+  --font-sans: var(--font-vazirmatn), 'Vazirmatn', var(--font-kodemono), 'Kode Mono', system-ui, sans-serif;
+  --font-mono: var(--font-kodemono), 'Kode Mono', var(--font-vazirmatn), 'Vazirmatn', monospace;
 }
 
 @layer base {
@@ -108,7 +108,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Vazirmatn', 'Kode Mono', system-ui, -apple-system, sans-serif !important;
+    font-family: var(--font-vazirmatn), 'Vazirmatn', var(--font-kodemono), 'Kode Mono', system-ui, -apple-system, sans-serif !important;
     letter-spacing: normal;
   }
 
@@ -125,12 +125,12 @@
   .font-mono,
   .tabular-nums,
   input {
-    font-family: 'Kode Mono', 'Vazirmatn', monospace !important;
+    font-family: var(--font-kodemono), 'Kode Mono', var(--font-vazirmatn), 'Vazirmatn', monospace !important;
   }
 
   .font-sans,
   .font-vazir {
-    font-family: 'Vazirmatn', 'Kode Mono', system-ui, -apple-system, sans-serif !important;
+    font-family: var(--font-vazirmatn), 'Vazirmatn', var(--font-kodemono), 'Kode Mono', system-ui, -apple-system, sans-serif !important;
   }
 
   ::selection {
