@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import {
-  Check,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -23,10 +22,9 @@ import {
   TablePageSize,
 } from '@/types/voltage-divider';
 import { ResistorUnit } from '@/types/resistor';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { ResistorColorCodeBadge } from './ResistorColorCodeBadge';
 import { DividerPairFilterBar } from './DividerPairFilterBar';
+import { DividerPairTableRow } from './DividerPairTableRow';
 
 interface DividerStandardPairPickerProps {
   pairs: StandardResistorPair[];
@@ -218,129 +216,107 @@ export const DividerStandardPairPicker = React.memo(function DividerStandardPair
         <table className="w-full text-right border-collapse text-xs">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/70 text-zinc-400 font-medium select-none text-[11px]">
-              <th className="py-2.5 px-3 w-12 text-center font-mono">#</th>
-              <th
-                onClick={() => handleSort('r1')}
-                className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  <span>{appMode === 'biasing' ? 'R1 (بالا/Vcc)' : 'R1 (بالا)'}</span>
-                  <SortIndicator activeKey={sortKey} currentKey="r1" dir={sortDir} />
-                </div>
-              </th>
-              <th className="py-2.5 px-3">
+              <th scope="col" className="py-2.5 px-3 w-12 text-center font-mono">#</th>
+              <TableSortHeader
+                label={appMode === 'biasing' ? 'R1 (بالا/Vcc)' : 'R1 (بالا)'}
+                columnKey="r1"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={handleSort}
+              />
+              <th scope="col" className="py-2.5 px-3">
                 <span>{appMode === 'biasing' ? 'R2 (پایین/Gnd)' : 'R2 (پایین)'}</span>
               </th>
 
               {/* Mode-specific Headers */}
               {appMode === 'sampling' && (
                 <>
-                  <th
-                    onClick={() => handleSort('ratio')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>ضریب مقیاس (K) و خطا</span>
-                      <SortIndicator activeKey={sortKey} currentKey="ratio" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('thevenin')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>امپدانس ADC (Rth)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="thevenin" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('current')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>جریان پایش سیگنال</span>
-                      <SortIndicator activeKey={sortKey} currentKey="current" dir={sortDir} />
-                    </div>
-                  </th>
+                  <TableSortHeader
+                    label="ضریب مقیاس (K) و خطا"
+                    columnKey="ratio"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="امپدانس ADC (Rth)"
+                    columnKey="thevenin"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="جریان پایش سیگنال"
+                    columnKey="current"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
                 </>
               )}
 
               {appMode === 'biasing' && (
                 <>
-                  <th
-                    onClick={() => handleSort('vout')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>ولتاژ بیس (Vth_base)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="vout" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('thevenin')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>مقاومت بیس (Rth_base)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="thevenin" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('current')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>جریان مقسم بایاس (Ibias)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="current" dir={sortDir} />
-                    </div>
-                  </th>
+                  <TableSortHeader
+                    label="ولتاژ بیس (Vth_base)"
+                    columnKey="vout"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="مقاومت بیس (Rth_base)"
+                    columnKey="thevenin"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="جریان مقسم بایاس (Ibias)"
+                    columnKey="current"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
                 </>
               )}
 
               {appMode === 'reference' && (
                 <>
-                  <th
-                    onClick={() => handleSort('error')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>ولتاژ رفرنس (Vref)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="error" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('worst_case')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>تلرانس ۵٪ (بازه Drift)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="worst_case" dir={sortDir} />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('thevenin')}
-                    className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span>امپدانس خروجی (Rout)</span>
-                      <SortIndicator activeKey={sortKey} currentKey="thevenin" dir={sortDir} />
-                    </div>
-                  </th>
+                  <TableSortHeader
+                    label="ولتاژ رفرنس (Vref)"
+                    columnKey="error"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="تلرانس ۵٪ (بازه Drift)"
+                    columnKey="worst_case"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <TableSortHeader
+                    label="امپدانس خروجی (Rout)"
+                    columnKey="thevenin"
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
                 </>
               )}
 
               {/* Power Column */}
-              <th
-                onClick={() => handleSort('power')}
-                className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  <span>توان تلفاتی</span>
-                  <SortIndicator activeKey={sortKey} currentKey="power" dir={sortDir} />
-                </div>
-              </th>
+              <TableSortHeader
+                label="توان تلفاتی"
+                columnKey="power"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={handleSort}
+              />
 
-              <th className="py-2.5 px-3 text-center w-28">وضعیت / اعمال</th>
+              <th scope="col" className="py-2.5 px-3 text-center w-28">وضعیت / اعمال</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
@@ -358,180 +334,15 @@ export const DividerStandardPairPicker = React.memo(function DividerStandardPair
                   activeR2?.value === pair.r2Value &&
                   activeR2?.unit === pair.r2Unit;
 
-                const isExact = pair.errorPercentage <= 0.05;
-                const r1UnitSym = pair.r1Unit === 'kOhm' ? 'kΩ' : pair.r1Unit === 'MOhm' ? 'MΩ' : 'Ω';
-                const r2UnitSym = pair.r2Unit === 'kOhm' ? 'kΩ' : pair.r2Unit === 'MOhm' ? 'MΩ' : 'Ω';
-
                 return (
-                  <tr
+                  <DividerPairTableRow
                     key={`${pair.r1Value}-${pair.r1Unit}-${pair.r2Value}-${pair.r2Unit}`}
-                    className={cn(
-                      'transition-colors duration-150 text-[11px]',
-                      isActive
-                        ? 'bg-emerald-950/25 border-r-2 border-emerald-500'
-                        : 'hover:bg-zinc-850/40'
-                    )}
-                  >
-                    {/* Rank & Badge */}
-                    <td className="py-2 px-3 text-center">
-                      <div className="flex flex-col items-center gap-0.5">
-                        <span
-                          className={cn(
-                            'flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold font-mono transition-colors',
-                            isActive
-                              ? 'bg-emerald-500 text-zinc-950 font-bold'
-                              : 'bg-zinc-800 text-zinc-300'
-                          )}
-                        >
-                          {idx + 1}
-                        </span>
-                        {pair.badge && (
-                          <span className="text-[9px] font-sans text-zinc-500 truncate max-w-[76px]">
-                            {pair.badge}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Resistor R1 with Color Code */}
-                    <td className="py-2 px-3 text-white">
-                      <div className="flex items-center gap-2" dir="ltr">
-                        <div className="inline-flex items-baseline gap-1 bg-zinc-950/80 border border-zinc-800 px-2 py-1 rounded-md shadow-inner">
-                          <span className="text-zinc-500 text-[10px] font-bold font-mono">R1:</span>
-                          <span className="font-bold text-xs text-white tabular-nums font-mono">{pair.r1Value}</span>
-                          <span className="text-[11px] font-semibold text-emerald-400 font-mono">{r1UnitSym}</span>
-                        </div>
-                        <ResistorColorCodeBadge value={pair.r1Value} unit={pair.r1Unit} label="R1" />
-                      </div>
-                    </td>
-
-                    {/* Resistor R2 with Color Code */}
-                    <td className="py-2 px-3 text-white">
-                      <div className="flex items-center gap-2" dir="ltr">
-                        <div className="inline-flex items-baseline gap-1 bg-zinc-950/80 border border-zinc-800 px-2 py-1 rounded-md shadow-inner">
-                          <span className="text-zinc-500 text-[10px] font-bold font-mono">R2:</span>
-                          <span className="font-bold text-xs text-white tabular-nums font-mono">{pair.r2Value}</span>
-                          <span className="text-[11px] font-semibold text-emerald-400 font-mono">{r2UnitSym}</span>
-                        </div>
-                        <ResistorColorCodeBadge value={pair.r2Value} unit={pair.r2Unit} label="R2" />
-                      </div>
-                    </td>
-
-                    {/* Mode 1: ADC Sampling Columns */}
-                    {appMode === 'sampling' && (
-                      <>
-                        <td className="py-2 px-3" dir="ltr">
-                          <div className="flex items-center gap-1.5 font-mono">
-                            <span className="font-bold text-zinc-100">K: {pair.divisionRatioFormatted}</span>
-                            <Badge
-                              variant={isExact ? 'success' : pair.errorPercentage < 1.5 ? 'subtle' : 'warning'}
-                              size="sm"
-                              className="text-[9px] py-0 font-sans"
-                            >
-                              {isExact ? 'خطا ۰٪' : <span className="font-mono tabular-nums" dir="ltr">±{pair.errorPercentage}%</span>}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="py-2 px-3" dir="ltr">
-                          <div className="flex items-center gap-1.5 font-mono">
-                            <span className="font-medium text-zinc-200 tabular-nums">{pair.theveninFormatted}</span>
-                            <Badge
-                              variant={pair.adcSuitability === 'direct' ? 'success' : pair.adcSuitability === 'buffered' ? 'subtle' : 'warning'}
-                              size="sm"
-                              className="font-sans text-[9px] py-0"
-                            >
-                              {pair.adcSuitability === 'direct' ? 'مستقیم (ADC)' : pair.adcSuitability === 'buffered' ? 'بای‌پاس' : 'بافر'}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="py-2 px-3 text-zinc-300 font-mono tabular-nums" dir="ltr">
-                          <span>{pair.currentFormatted}</span>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Mode 2: Transistor Biasing Columns */}
-                    {appMode === 'biasing' && (
-                      <>
-                        <td className="py-2 px-3" dir="ltr">
-                          <span className="font-bold text-emerald-400 font-mono tabular-nums">{pair.displayVout} V</span>
-                        </td>
-                        <td className="py-2 px-3" dir="ltr">
-                          <div className="flex items-center gap-1.5 font-mono">
-                            <span className="font-medium text-zinc-200 tabular-nums">{pair.theveninFormatted}</span>
-                            <Badge
-                              variant={pair.biasStability === 'stiff' ? 'success' : pair.biasStability === 'moderate' ? 'subtle' : 'warning'}
-                              size="sm"
-                              className="font-sans text-[9px] py-0"
-                            >
-                              {pair.biasStability === 'stiff' ? 'سفت (Stiff)' : pair.biasStability === 'moderate' ? 'متوسط' : 'نرم'}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="py-2 px-3 text-zinc-300 font-mono tabular-nums" dir="ltr">
-                          <span>{pair.currentFormatted}</span>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Mode 3: Reference Voltage Columns */}
-                    {appMode === 'reference' && (
-                      <>
-                        <td className="py-2 px-3" dir="ltr">
-                          <div className="flex items-center gap-1.5 font-mono">
-                            <span className="font-bold text-zinc-100 tabular-nums">{pair.displayVout} V</span>
-                            <Badge
-                              variant={isExact ? 'success' : pair.errorPercentage < 1.5 ? 'subtle' : 'warning'}
-                              size="sm"
-                              className="text-[9px] py-0 font-sans"
-                            >
-                              {isExact ? 'خطا ۰٪' : <span className="font-mono tabular-nums" dir="ltr">±{pair.errorPercentage}%</span>}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="py-2 px-3 font-mono text-zinc-300 tabular-nums" dir="ltr">
-                          <span className="text-[10px] text-zinc-200 font-medium">
-                            {pair.worstCaseVoutMinFormatted} - {pair.worstCaseVoutMaxFormatted} V
-                          </span>
-                        </td>
-                        <td className="py-2 px-3 text-zinc-300 font-mono tabular-nums" dir="ltr">
-                          <span>{pair.theveninFormatted}</span>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Power Dissipation */}
-                    <td className="py-2 px-3 text-zinc-300 font-mono tabular-nums" dir="ltr">
-                      <div className="flex flex-col text-[10px]">
-                        <span className="font-semibold text-zinc-200">{pair.powerFormatted}</span>
-                        {(pair.powerR1Formatted || pair.powerR2Formatted) && (
-                          <span className="text-[9px] text-zinc-500">
-                            P1: {pair.powerR1Formatted} | P2: {pair.powerR2Formatted}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Action Button */}
-                    <td className="py-2 px-3 text-center">
-                      {isActive ? (
-                        <div className="w-full inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-md bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-semibold shadow-xs select-none">
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
-                          <span className="font-sans">در مدار</span>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => onApplyPair(pair.r1Value, pair.r1Unit, pair.r2Value, pair.r2Unit)}
-                          className="w-full inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-md border border-zinc-700/80 bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-600 hover:text-white text-zinc-200 text-xs font-medium transition-all cursor-pointer shadow-xs active:scale-[0.97]"
-                          title="اعمال این جفت روی مدار و شماتیک"
-                        >
-                          <Check className="h-3 w-3 text-zinc-400" />
-                          <span className="font-sans">اعمال</span>
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+                    pair={pair}
+                    idx={idx}
+                    isActive={isActive}
+                    appMode={appMode}
+                    onApplyPair={onApplyPair}
+                  />
                 );
               })
             )}
@@ -553,6 +364,42 @@ export const DividerStandardPairPicker = React.memo(function DividerStandardPair
     </motion.div>
   );
 });
+
+function TableSortHeader({
+  label,
+  columnKey,
+  sortKey,
+  sortDir,
+  onSort,
+}: {
+  label: string;
+  columnKey: PairTableSortKey;
+  sortKey: PairTableSortKey;
+  sortDir: SortDirection;
+  onSort: (key: PairTableSortKey) => void;
+}) {
+  const isSorted = sortKey === columnKey;
+  return (
+    <th
+      scope="col"
+      tabIndex={0}
+      aria-sort={isSorted ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      onClick={() => onSort(columnKey)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSort(columnKey);
+        }
+      }}
+      className="py-2.5 px-3 cursor-pointer hover:text-zinc-200 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-emerald-500/50 select-none"
+    >
+      <div className="flex items-center gap-1.5">
+        <span>{label}</span>
+        <SortIndicator activeKey={sortKey} currentKey={columnKey} dir={sortDir} />
+      </div>
+    </th>
+  );
+}
 
 function SortIndicator({
   activeKey,

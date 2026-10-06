@@ -1,29 +1,7 @@
 import type {Metadata} from 'next';
-import localFont from 'next/font/local';
 import './globals.css'; // Global styles with local bundled fonts
 import { CustomCursor } from '@/components/custom-cursor';
 import { InitialAppLoader } from '@/components/ui/initial-app-loader';
-
-const vazirmatn = localFont({
-  src: [
-    { path: '../public/fonts/vazirmatn-400.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/vazirmatn-500.woff2', weight: '500', style: 'normal' },
-    { path: '../public/fonts/vazirmatn-600.woff2', weight: '600', style: 'normal' },
-    { path: '../public/fonts/vazirmatn-700.woff2', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-vazirmatn',
-  display: 'swap',
-});
-
-const kodeMono = localFont({
-  src: [
-    { path: '../public/fonts/kodemono-400.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/kodemono-600.woff2', weight: '600', style: 'normal' },
-    { path: '../public/fonts/kodemono-700.woff2', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-kodemono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'Ohmic - Parallel Resistor Lab',
@@ -42,7 +20,29 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${kodeMono.variable}`}>
+    <html lang="fa" dir="rtl">
+      <head>
+        {/* Preconnect to external font CDNs */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+
+        {/* Local bundled font preloads */}
+        <link
+          rel="preload"
+          href="/fonts/vazirmatn-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/kodemono-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="antialiased" suppressHydrationWarning>
         {/* Instant pre-hydration ASCII line loader */}
         <div

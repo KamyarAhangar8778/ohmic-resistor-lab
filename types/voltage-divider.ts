@@ -19,6 +19,8 @@ export type DividerSolveMode = 'vout' | 'r1' | 'r2' | 'vin' | 'pair';
 
 export type DividerApplicationMode = 'sampling' | 'biasing' | 'reference';
 
+export type ResistorSeriesOption = 'E24' | 'E96';
+
 export type PairSortCriterion = 'accuracy' | 'power' | 'current' | 'thevenin' | 'overall';
 
 export type PairTableSortKey =
@@ -73,6 +75,8 @@ export interface StandardResistorPair {
   biasStabilityLabel: string;
   domainCategory: 'low_power' | 'general' | 'high_drive';
   domainCategoryLabel: string;
+  series?: ResistorSeriesOption;
+  tolerancePct?: number;
   overallScore: number;
   badge?: string;
   isLoaded?: boolean;
@@ -80,6 +84,7 @@ export interface StandardResistorPair {
 
 export interface VoltageDividerState {
   appMode: DividerApplicationMode;
+  series: ResistorSeriesOption;
   solveMode: DividerSolveMode;
   vin: string;
   vinUnit: VoltageUnit;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { motion } from 'motion/react';
-import { Zap, Activity, Smartphone } from 'lucide-react';
+import { Zap, Activity } from 'lucide-react';
 import { SymbolStandard, SchematicLegendItem } from './schematic-types';
 import { SchematicDefs } from './SchematicDefs';
 import { cn } from '@/lib/utils';
@@ -39,7 +39,6 @@ export function SchematicCard({
 }: SchematicCardProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = React.useState<number>(800);
-  const [fitToScreen, setFitToScreen] = React.useState<boolean>(false);
 
   // ResizeObserver for zero-reflow layout responsiveness
   React.useEffect(() => {
@@ -139,24 +138,6 @@ export function SchematicCard({
             <Activity className={cn('h-3.5 w-3.5 transition-colors', animateFlow && 'text-emerald-400')} />
             <span className="hidden sm:inline">شارش جریان</span>
           </motion.button>
-
-          {/* Fit to Screen Toggle for Mobile */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            type="button"
-            onClick={() => setFitToScreen(!fitToScreen)}
-            className={cn(
-              'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all cursor-pointer select-none',
-              fitToScreen
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 shadow-xs'
-                : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200'
-            )}
-            title="تطبیق ابعاد مدار با عرض صفحه در نمایشگرهای کوچک (Fit to Screen)"
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{fitToScreen ? 'مقیاس ۱:۱' : 'تطبیق با صفحه'}</span>
-          </motion.button>
         </div>
       </div>
 
@@ -170,8 +151,7 @@ export function SchematicCard({
         <svg
           style={{
             direction: 'ltr',
-            minWidth: fitToScreen ? '100%' : `${minContentWidth}px`,
-            width: fitToScreen ? '100%' : 'auto',
+            minWidth: `${minContentWidth}px`,
           }}
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full block"

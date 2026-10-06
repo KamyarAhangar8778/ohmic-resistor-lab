@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Cpu,
   GitBranch,
-  Layers,
   Sliders,
   Zap,
   Menu,
@@ -40,14 +39,6 @@ const TOOLS_LIST: ToolItem[] = [
     enName: 'Parallel Resistors',
     icon: GitBranch,
     active: true,
-  },
-  {
-    id: 'series-resistor',
-    name: 'مقاومت سری',
-    enName: 'Series Resistors',
-    icon: Layers,
-    active: false,
-    comingSoon: true,
   },
   {
     id: 'voltage-divider',
@@ -143,22 +134,13 @@ export function AppShell({
             isSidebarCollapsed ? 'w-0 p-0 border-l-0 opacity-0 pointer-events-none' : 'w-64 p-4 opacity-100'
           )}
         >
-          <div className="mb-4 px-1 flex items-center justify-between">
+          <div className="mb-4 px-1">
             <span className="text-[11px] text-zinc-400 font-semibold select-none">
               ابزارهای محاسباتی
             </span>
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed(true)}
-              className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 transition-colors cursor-pointer"
-              title="بستن منو (افزایش عرض فضای کار)"
-              aria-label="بستن منو"
-            >
-              <PanelLeftClose className="h-3.5 w-3.5" />
-            </button>
           </div>
 
-          <nav className="space-y-1">
+          <nav aria-label="ابزارهای محاسباتی مدار" className="space-y-1">
             {TOOLS_LIST.map((tool) => {
               const Icon = tool.icon;
               const isSelected = activeToolId === tool.id;
@@ -166,13 +148,14 @@ export function AppShell({
                 <button
                   key={tool.id}
                   type="button"
+                  aria-current={isSelected ? 'page' : undefined}
                   onClick={() => {
                     if (tool.active && onSelectTool) {
                       onSelectTool(tool.id);
                     }
                   }}
                   disabled={!tool.active}
-                  className={`w-full group flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors text-right ${
+                  className={`w-full group flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors text-right focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                     isSelected
                       ? 'bg-zinc-850/90 text-white border border-zinc-700/80 shadow-xs'
                       : tool.active
@@ -268,27 +251,12 @@ export function AppShell({
           )}
         </AnimatePresence>
 
-        {/* Floating Open Sidebar Button when Collapsed */}
-        {isSidebarCollapsed && (
-          <div className="hidden md:block fixed right-3 top-20 z-30">
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed(false)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-800 bg-zinc-950/90 text-zinc-300 hover:text-white hover:border-zinc-700 hover:bg-zinc-900 shadow-xl text-xs font-medium transition-all cursor-pointer backdrop-blur-md"
-              title="نمایش منوی ابزارها"
-            >
-              <PanelLeftOpen className="h-3.5 w-3.5 text-emerald-400" />
-              <span>ابزارها</span>
-            </button>
-          </div>
-        )}
-
         {/* Content Viewport */}
         <main className="flex-1 p-4 sm:p-8 min-w-0 transition-all duration-300">
           <div
             className={cn(
               'mx-auto transition-all duration-300',
-              isSidebarCollapsed ? 'max-w-6xl' : 'max-w-4xl'
+              isSidebarCollapsed ? 'max-w-7xl' : 'max-w-6xl'
             )}
           >
             {children}

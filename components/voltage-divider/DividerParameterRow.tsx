@@ -139,6 +139,7 @@ export const DividerParameterRow = React.memo(function DividerParameterRow({
                   size="sm"
                   onClick={onDelete}
                   title="حذف المان"
+                  aria-label={`حذف ${label}`}
                   className="text-zinc-400 hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -155,6 +156,7 @@ export const DividerParameterRow = React.memo(function DividerParameterRow({
                 inputMode="decimal"
                 dir="ltr"
                 placeholder={placeholder}
+                aria-label={label}
                 value={value}
                 readOnly={isCalculated}
                 onChange={handleValueChange}
@@ -175,6 +177,7 @@ export const DividerParameterRow = React.memo(function DividerParameterRow({
                   onClick={handleClear}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-zinc-500 hover:text-zinc-200 transition-colors rounded cursor-pointer"
                   title="پاک کردن مقدار"
+                  aria-label={`پاک کردن مقدار ${tag}`}
                 >
                   <X className="h-3.5 w-3.5" />
                 </motion.button>
@@ -254,6 +257,7 @@ export const DividerParameterRow = React.memo(function DividerParameterRow({
                   size="sm"
                   onClick={onDelete}
                   title="حذف مقاومت بار"
+                  aria-label={`حذف مقاومت بار ${tag}`}
                   className="text-zinc-500 hover:text-red-400 hover:bg-red-950/30"
                 >
                   <Trash2 className="h-4 w-4" />

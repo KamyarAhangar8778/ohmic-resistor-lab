@@ -19,8 +19,8 @@ const DIVIDER_LEGEND: SchematicLegendItem[] = [
   { label: 'منبع تغذیه VCC', color: '#10b981', shape: 'circle', textColor: 'text-zinc-300' },
   { label: 'پروب خروجی Vout', color: '#34d399', shape: 'circle', textColor: 'text-emerald-400' },
   { label: 'مقاومت‌های R1 / R2', color: '#f59e0b', shape: 'square', textColor: 'text-zinc-300' },
-  { label: 'زمین مرجع مدار GND (0V)', color: '#71717a', shape: 'circle', textColor: 'text-zinc-400' },
-  { label: 'شارش متناسب جریان (I)', color: '#10b981', shape: 'dash', textColor: 'text-emerald-400' },
+  { label: 'زمین مرجع مدار GND', color: '#71717a', shape: 'circle', textColor: 'text-zinc-400' },
+  { label: 'شارش جریان (I)', color: '#10b981', shape: 'dash', textColor: 'text-emerald-400' },
 ];
 
 export const DividerSchematic = React.memo(function DividerSchematic({
@@ -31,23 +31,24 @@ export const DividerSchematic = React.memo(function DividerSchematic({
   const [animateFlow, setAnimateFlow] = React.useState<boolean>(true);
   const [hoveredElement, setHoveredElement] = React.useState<string | null>(null);
 
-  // Exact EDA Layout coordinates matching CircuitSchematic reference
+  const appMode = state.appMode || 'sampling';
+
   // Centered vertical voltage divider column
-  const divX = 140; // Directly aligns VCC, R1, mid-node, R2, and GND
-  const loadX = divX + (state.hasLoad ? 120 : 0); // Optional RL branch
-  const voutX = (state.hasLoad ? loadX : divX) + 128; // Output probe terminal X
+  const divX = 130;
+  const loadX = divX + (state.hasLoad ? 110 : 0);
+  const voutX = (state.hasLoad ? loadX : divX) + 140;
 
-  // Highly symmetrical, compact vertical geometry (18px leads, exactly 25% shorter)
+  // Vertical geometry
   const vccY = 56;
-  const r1TopY = 74;      // Line 1: vccY (56) -> r1TopY (74) = 18px (-25%)
-  const r1BottomY = 122;  // R1 compact body span: 48px
-  const midNodeY = 134;   // Line 2 midpoint (Vout junction): 122 -> 134 -> 146 = 24px
-  const r2TopY = 146;     // Line 2: r1BottomY (122) -> r2TopY (146) = 24px
-  const r2BottomY = 194;  // R2 compact body span: 48px
-  const gndY = 212;       // Line 3: r2BottomY (194) -> gndY (212) = 18px (-25%)
-  const svgHeight = 236;
+  const r1TopY = 74;
+  const r1BottomY = 122;
+  const midNodeY = 134;
+  const r2TopY = 146;
+  const r2BottomY = 194;
+  const gndY = 212;
+  const svgHeight = 240;
 
-  const minWidth = voutX + 90;
+  const minWidth = voutX + 100;
   const isShort = result.isShortCircuit;
 
   const r1UnitText = state.r1Unit === 'Ohm' ? 'Ω' : state.r1Unit === 'kOhm' ? 'kΩ' : 'MΩ';
@@ -56,8 +57,14 @@ export const DividerSchematic = React.memo(function DividerSchematic({
 
   return (
     <SchematicCard
-      title="شماتیک مداری تقسیم ولتاژ"
-      subtitle="نمای اتصالات، پایانه‌ها، پروب خروجی و افت ولتاژ روی شاخه‌ها"
+      title={
+        appMode === 'sampling'
+          ? 'شماتیک نمونه‌گیری ورودی ADC میکروکنترلر'
+          : appMode === 'biasing'
+          ? 'شماتیک بایاس بیس ترانزیستور BJT / MOSFET'
+          : 'شماتیک تولید و بافر ولتاژ رفرنس دقیق'
+      }
+      subtitle="نمای گرافیکی شماتیک مدار، پایانه‌های اتصالات و نقاط تست تعاملی"
       svgHeight={svgHeight}
       minContentWidth={minWidth}
       symbolStandard={symbolStandard}
@@ -68,13 +75,13 @@ export const DividerSchematic = React.memo(function DividerSchematic({
     >
       {({ symbolStandard: std, animateFlow: flow }) => (
         <g>
-          {/* ================= 1. VCC POWER PORT (DIRECTLY ABOVE R1) ================= */}
+          {/* ================= 1. VCC POWER PORT ================= */}
           <SchematicPowerPort
             x={divX}
             y={vccY}
             direction="up"
             stemLength={16}
-            label="VCC"
+            label={appMode === 'biasing' ? 'VCC' : 'VIN'}
             sublabel={`${state.vin || '0'} ${state.vinUnit}`}
             color={isShort ? '#ef4444' : '#10b981'}
             textColor={isShort ? '#ef4444' : '#34d399'}
@@ -84,7 +91,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             onMouseLeave={() => setHoveredElement(null)}
           />
 
-          {/* ================= 2. LINE 1: VCC TO R1 (24px) ================= */}
+          {/* ================= 2. LINE: VCC TO R1 ================= */}
           <line
             x1={divX}
             y1={vccY}
@@ -108,7 +115,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             />
           )}
 
-          {/* ================= 3. RESISTOR R1 (HIGH-SIDE, COMPACT 48px) ================= */}
+          {/* ================= 3. RESISTOR R1 ================= */}
           <SchematicResistor
             x={divX}
             topY={r1TopY}
@@ -127,7 +134,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             onHover={(h) => setHoveredElement(h ? 'r1' : null)}
           />
 
-          {/* ================= 4. LINE 2: R1 TO R2 (24px, CENTERED TAP AT midNodeY) ================= */}
+          {/* ================= 4. LINE: R1 TO R2 ================= */}
           <line
             x1={divX}
             y1={r1BottomY}
@@ -151,35 +158,10 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             />
           )}
 
-          {/* Solder junction node tapping Vout */}
+          {/* Midpoint Solder Node */}
           <SchematicNode cx={divX} cy={midNodeY} color="#10b981" glow={true} />
 
-          {/* Horizontal Vout conductor rail: divX to voutX - 7 */}
-          <line
-            x1={divX}
-            y1={midNodeY}
-            x2={voutX - 7}
-            y2={midNodeY}
-            stroke="#10b981"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-          {flow && !isShort && (
-            <line
-              x1={divX}
-              y1={midNodeY}
-              x2={voutX - 7}
-              y2={midNodeY}
-              stroke="#6ee7b7"
-              strokeWidth="2"
-              strokeDasharray="4 8"
-              strokeLinecap="round"
-              className="electron-top"
-              opacity="0.8"
-            />
-          )}
-
-          {/* ================= 5. RESISTOR R2 (LOW-SIDE, COMPACT 48px) ================= */}
+          {/* ================= 5. RESISTOR R2 ================= */}
           <SchematicResistor
             x={divX}
             topY={r2TopY}
@@ -198,7 +180,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             onHover={(h) => setHoveredElement(h ? 'r2' : null)}
           />
 
-          {/* ================= 6. LINE 3: R2 TO GND (24px) ================= */}
+          {/* ================= 6. LINE: R2 TO GND ================= */}
           <line
             x1={divX}
             y1={r2BottomY}
@@ -208,21 +190,6 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             strokeWidth="2.5"
             strokeLinecap="round"
           />
-          {flow && !isShort && (
-            <line
-              x1={divX}
-              y1={r2BottomY}
-              x2={divX}
-              y2={gndY}
-              stroke="#d4d4d8"
-              strokeWidth="2"
-              strokeDasharray="3 6"
-              className="electron-down"
-              style={{ opacity: 0.6 }}
-            />
-          )}
-
-          {/* ================= 7. SINGLE GROUND SYMBOL (DIRECTLY UNDER R2) ================= */}
           <SchematicGround
             x={divX}
             y={gndY}
@@ -233,23 +200,22 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             textColor="#a1a1aa"
           />
 
-          {/* ================= 8. OPTIONAL LOAD RESISTOR RL (IN PARALLEL) ================= */}
+          {/* ================= 7. OPTIONAL LOAD RESISTOR (RL) IN PARALLEL ================= */}
           {state.hasLoad && (
             <g>
-              {/* Solder junction on Vout rail */}
-              <SchematicNode cx={loadX} cy={midNodeY} color="#10b981" />
+              {/* Solder junction on mid-rail */}
+              <SchematicNode cx={loadX} cy={midNodeY} color="#10b981" glow={true} />
 
-              {/* Vertical Lead into RL top (matches R2 topY) */}
+              {/* Lead down to RL */}
               <line
                 x1={loadX}
                 y1={midNodeY}
                 x2={loadX}
                 y2={r2TopY}
-                stroke="#10b981"
+                stroke={isShort ? '#ef4444' : '#10b981'}
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
-
               {flow && !isShort && (
                 <line
                   x1={loadX}
@@ -264,6 +230,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
                 />
               )}
 
+              {/* RL Component */}
               <SchematicResistor
                 x={loadX}
                 topY={r2TopY}
@@ -271,8 +238,8 @@ export const DividerSchematic = React.memo(function DividerSchematic({
                 tag="RL"
                 valueText={`${state.rl || '0'} ${rlUnitText}`}
                 metricBadge={
-                  result.powerLoadWatts !== null
-                    ? { text: `P: ${result.displayPowerLoad}`, color: '#fbbf24' }
+                  result.displayCurrentLoad
+                    ? { text: `IL: ${result.displayCurrentLoad}`, color: '#34d399' }
                     : null
                 }
                 symbolStandard={std}
@@ -282,7 +249,7 @@ export const DividerSchematic = React.memo(function DividerSchematic({
                 onHover={(h) => setHoveredElement(h ? 'rl' : null)}
               />
 
-              {/* Vertical Lead from RL bottom to dedicated ground (18px) */}
+              {/* Return to GND */}
               <line
                 x1={loadX}
                 y1={r2BottomY}
@@ -292,21 +259,6 @@ export const DividerSchematic = React.memo(function DividerSchematic({
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
-              {flow && !isShort && (
-                <line
-                  x1={loadX}
-                  y1={r2BottomY}
-                  x2={loadX}
-                  y2={gndY}
-                  stroke="#d4d4d8"
-                  strokeWidth="2"
-                  strokeDasharray="3 6"
-                  className="electron-down"
-                  style={{ opacity: 0.6 }}
-                />
-              )}
-
-              {/* Dedicated Ground Symbol for RL */}
               <SchematicGround
                 x={loadX}
                 y={gndY}
@@ -319,11 +271,22 @@ export const DividerSchematic = React.memo(function DividerSchematic({
             </g>
           )}
 
-          {/* ================= 9. OUTPUT PROBE TERMINAL (Vout) ================= */}
+          {/* ================= 8. HORIZONTAL RAIL TO OUTPUT ================= */}
+          <line
+            x1={divX}
+            y1={midNodeY}
+            x2={voutX - 10}
+            y2={midNodeY}
+            stroke="#10b981"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+
+          {/* ================= 9. OUTPUT PROBE TERMINAL LABEL ================= */}
           <SchematicTerminalPad
-            cx={voutX}
+            cx={voutX - 10}
             cy={midNodeY}
-            leadToX={voutX - 7}
+            leadToX={voutX - 10}
             leadToY={midNodeY}
             tag="Vout"
             sublabel={`${result.displayVout} ${result.displayVoutUnit}`}

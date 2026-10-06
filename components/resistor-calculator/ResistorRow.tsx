@@ -96,6 +96,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                 size="sm"
                 onClick={() => onDuplicate(item)}
                 title="تکرار این شاخه"
+                aria-label={`کپی شاخه R${index + 1}`}
                 className="text-zinc-400 hover:text-zinc-100"
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -107,6 +108,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                   size="sm"
                   onClick={() => onDelete(item.id)}
                   title="حذف شاخه"
+                  aria-label={`حذف شاخه R${index + 1}`}
                   className="text-zinc-400 hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -123,6 +125,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                 inputMode="decimal"
                 dir="ltr"
                 placeholder="100 یا 4.7"
+                aria-label={`مقدار مقاومت R${index + 1}`}
                 value={item.value}
                 onChange={handleValueChange}
                 className="w-full pl-3 pr-8 font-mono text-sm h-10 bg-zinc-950/90 border-zinc-800 text-left focus-visible:border-emerald-500/80 focus-visible:ring-emerald-500/20 transition-colors"
@@ -137,6 +140,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                   onClick={handleClearValue}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-zinc-500 hover:text-zinc-200 transition-colors rounded cursor-pointer"
                   title="پاک کردن مقدار"
+                  aria-label={`پاک کردن مقدار R${index + 1}`}
                 >
                   <X className="h-3.5 w-3.5" />
                 </motion.button>
@@ -190,6 +194,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                 size="sm"
                 onClick={() => onDuplicate(item)}
                 title="تکرار این شاخه (کپی مقادیر)"
+                aria-label={`تکرار شاخه R${index + 1}`}
                 className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60"
               >
                 <Copy className="h-4 w-4" />
@@ -203,6 +208,7 @@ export const ResistorRow = React.memo(function ResistorRow({
                   size="sm"
                   onClick={() => onDelete(item.id)}
                   title="حذف این شاخه از مدار"
+                  aria-label={`حذف شاخه R${index + 1} از مدار`}
                   className="text-zinc-500 hover:text-red-400 hover:bg-red-950/30"
                 >
                   <Trash2 className="h-4 w-4" />

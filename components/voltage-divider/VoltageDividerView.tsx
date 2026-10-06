@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Info, Sliders } from 'lucide-react';
+import { Plus, Sliders } from 'lucide-react';
 import {
   VoltageDividerState,
   VoltageUnit,
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 
 const DEFAULT_DIVIDER_STATE: VoltageDividerState = {
   appMode: 'sampling',
+  series: 'E24',
   solveMode: 'vout',
   vin: '5',
   vinUnit: 'V',
@@ -40,7 +41,7 @@ export function VoltageDividerView() {
   const [pairCriterion, setPairCriterion] = React.useState<PairSortCriterion>('overall');
   const [selectedPair, setSelectedPair] = React.useState<StandardResistorPair | null>(null);
 
-  // Top recommended commercial E24 resistor pairs tailored to current appMode
+  // Top recommended commercial E24 / E96 resistor pairs tailored to current appMode & series
   const suggestedPairs = React.useMemo(() => {
     const vinNum = parseFloat(state.vin) * (VOLTAGE_UNIT_MAP[state.vinUnit] ?? 1);
     const targetVout = parseFloat(state.vout || '0') * (VOLTAGE_UNIT_MAP[state.voutUnit || 'V'] ?? 1);
@@ -51,8 +52,8 @@ export function VoltageDividerView() {
       state.hasLoad && state.rl.trim().length > 0
         ? parseFloat(state.rl) * (state.rlUnit === 'kOhm' ? 1e3 : state.rlUnit === 'MOhm' ? 1e6 : 1)
         : null;
-    return findBestE24Pairs(vinNum, targetVout, pairCriterion, 20, rlNum, state.appMode);
-  }, [state.vin, state.vinUnit, state.vout, state.voutUnit, state.hasLoad, state.rl, state.rlUnit, state.appMode, pairCriterion]);
+    return findBestE24Pairs(vinNum, targetVout, pairCriterion, 20, rlNum, state.appMode, state.series);
+  }, [state.vin, state.vinUnit, state.vout, state.voutUnit, state.hasLoad, state.rl, state.rlUnit, state.appMode, state.series, pairCriterion]);
 
   // Derived effective state: uses user-selected pair or defaults to top #1 suggested pair
   const effectiveState = React.useMemo<VoltageDividerState>(() => {
@@ -190,15 +191,6 @@ export function VoltageDividerView() {
               </motion.div>
             </div>
           )}
-
-          {/* Circuit Theory Note */}
-          <div className="rounded-lg border border-zinc-850/80 bg-zinc-950/40 p-3 flex items-start gap-2.5 text-zinc-400 text-xs leading-relaxed">
-            <Info className="h-4 w-4 shrink-0 text-zinc-500 mt-0.5" />
-            <div>
-              <span className="text-zinc-300 font-medium ml-1">تحلیل طراحی تقسیم ولتاژ:</span>
-              نسبت مقاومت‌های بالادست ($R_1$) و پایین‌دست ($R_2$) تعیین‌کننده ولتاژ خروجی است. موتور محاسباتی نزدیک‌ترین جفت‌های تجاری استاندارد ۵٪ موجود در بازار (EIA E24) را با حداقل تلفات و خطای ولتاژ استخراج می‌کند.
-            </div>
-          </div>
         </div>
 
         {/* Right Column: Calculated Deliverable (R1 & R2) and Circuit Telemetry */}
@@ -207,7 +199,7 @@ export function VoltageDividerView() {
         </div>
       </div>
 
-      {/* Top Commercial E24 Resistor Pairs Tailored to Application Mode (Full Width) */}
+      {/* Top Commercial E24 / E96 Resistor Pairs Tailored to Application Mode (Full Width) */}
       <div className="w-full">
         <DividerStandardPairPicker
           pairs={suggestedPairs}

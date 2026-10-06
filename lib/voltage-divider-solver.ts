@@ -3,6 +3,7 @@ import {
   StandardResistorPair,
   PairSortCriterion,
   DividerApplicationMode,
+  ResistorSeriesOption,
 } from '@/types/voltage-divider';
 import { formatPrecision } from './resistor-calc';
 import { formatCurrent, formatPower, formatResistance } from './voltage-divider-calc';
@@ -13,6 +14,20 @@ import { formatCurrent, formatPower, formatResistance } from './voltage-divider-
 export const E24_BASE_VALUES = [
   1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
   3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1,
+];
+
+/**
+ * Standard EIA E96 series base multipliers (1% precision commercial resistors)
+ */
+export const E96_BASE_VALUES = [
+  1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30,
+  1.33, 1.37, 1.40, 1.43, 1.47, 1.50, 1.54, 1.58, 1.62, 1.65, 1.69, 1.74,
+  1.78, 1.82, 1.87, 1.91, 1.96, 2.00, 2.05, 2.10, 2.15, 2.21, 2.26, 2.32,
+  2.37, 2.43, 2.49, 2.55, 2.61, 2.67, 2.74, 2.80, 2.87, 2.94, 3.01, 3.09,
+  3.16, 3.24, 3.32, 3.40, 3.48, 3.57, 3.65, 3.74, 3.83, 3.92, 4.02, 4.12,
+  4.22, 4.32, 4.42, 4.53, 4.64, 4.75, 4.87, 4.99, 5.11, 5.23, 5.36, 5.49,
+  5.62, 5.76, 5.90, 6.04, 6.19, 6.34, 6.49, 6.65, 6.81, 6.98, 7.15, 7.32,
+  7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 8.66, 8.87, 9.09, 9.31, 9.53, 9.76,
 ];
 
 // Generate common commercial E24 values from 100 Ω to 1 MΩ
@@ -27,24 +42,42 @@ const COMMON_E24_OHMS: readonly number[] = (() => {
   return values;
 })();
 
+// Generate precision commercial E96 values from 100 Ω to 1 MΩ
+const COMMON_E96_OHMS: readonly number[] = (() => {
+  const values: number[] = [];
+  const decades = [100, 1e3, 10e3, 100e3, 1e6];
+  for (const dec of decades) {
+    for (const base of E96_BASE_VALUES) {
+      values.push(Math.round(base * dec * 10) / 10);
+    }
+  }
+  return values;
+})();
+
 /**
  * Decomposes an absolute resistance in Ohms into human-readable value + unit
  */
 export function decomposeOhms(ohms: number): { value: string; unit: ResistorUnit } {
   if (ohms >= 1e6) {
-    return { value: formatPrecision(ohms / 1e6, 3), unit: 'MOhm' };
+    return { value: formatPrecision(ohms / 1e6, 2), unit: 'MOhm' };
   }
   if (ohms >= 1e3) {
-    return { value: formatPrecision(ohms / 1e3, 3), unit: 'kOhm' };
+    return { value: formatPrecision(ohms / 1e3, 2), unit: 'kOhm' };
   }
   return { value: formatPrecision(ohms, 2), unit: 'Ohm' };
 }
 
-// Pre-compute decomposed values for all standard E24 values to avoid repetitive formatting
-const E24_DECOMPOSED_MAP = new Map<number, { value: string; unit: ResistorUnit }>();
+// Pre-compute decomposed values for standard values to avoid repetitive formatting
+const OHMS_DECOMPOSED_MAP = new Map<number, { value: string; unit: ResistorUnit }>();
 for (let i = 0; i < COMMON_E24_OHMS.length; i++) {
   const ohms = COMMON_E24_OHMS[i];
-  E24_DECOMPOSED_MAP.set(ohms, decomposeOhms(ohms));
+  OHMS_DECOMPOSED_MAP.set(ohms, decomposeOhms(ohms));
+}
+for (let i = 0; i < COMMON_E96_OHMS.length; i++) {
+  const ohms = COMMON_E96_OHMS[i];
+  if (!OHMS_DECOMPOSED_MAP.has(ohms)) {
+    OHMS_DECOMPOSED_MAP.set(ohms, decomposeOhms(ohms));
+  }
 }
 
 /**
@@ -168,7 +201,7 @@ const PAIR_CACHE = new Map<string, StandardResistorPair[]>();
 const MAX_PAIR_CACHE = 64;
 
 /**
- * Finds top optimal commercial E24 resistor pairs tailored to real-world electronics applications:
+ * Finds top optimal commercial E24 (5%) or E96 (1%) resistor pairs tailored to real-world electronics applications:
  * 1. Signal / ADC Voltage Sampling
  * 2. Transistor Voltage-Divider Biasing (BJT / MOSFET)
  * 3. Precision Reference Voltage Generation
@@ -179,24 +212,29 @@ export function findBestE24Pairs(
   criterion: PairSortCriterion = 'overall',
   maxResults = 20,
   rlOhms?: number | null,
-  appMode: DividerApplicationMode = 'sampling'
+  appMode: DividerApplicationMode = 'sampling',
+  series: ResistorSeriesOption = 'E24'
 ): StandardResistorPair[] {
   if (vinVolts <= 0 || targetVoutVolts <= 0 || targetVoutVolts >= vinVolts) {
     return [];
   }
 
   const hasLoad = typeof rlOhms === 'number' && rlOhms > 0;
-  const cacheKey = `${vinVolts}_${targetVoutVolts}_${criterion}_${maxResults}_${rlOhms ?? 0}_${appMode}`;
+  const cacheKey = `${vinVolts}_${targetVoutVolts}_${criterion}_${maxResults}_${rlOhms ?? 0}_${appMode}_${series}`;
   const cached = PAIR_CACHE.get(cacheKey);
   if (cached !== undefined) return cached;
 
-  const len = COMMON_E24_OHMS.length;
+  const ohmsList = series === 'E96' ? COMMON_E96_OHMS : COMMON_E24_OHMS;
+  const tolerance = series === 'E96' ? 0.01 : 0.05;
+  const tolHigh = 1 + tolerance;
+  const tolLow = 1 - tolerance;
+  const len = ohmsList.length;
   const candidates: RawCandidate[] = [];
 
   for (let i = 0; i < len; i++) {
-    const r1 = COMMON_E24_OHMS[i];
+    const r1 = ohmsList[i];
     for (let j = 0; j < len; j++) {
-      const r2 = COMMON_E24_OHMS[j];
+      const r2 = ohmsList[j];
 
       let actualVout: number;
       let current: number;
@@ -207,7 +245,7 @@ export function findBestE24Pairs(
       let stiffnessRatio: number | undefined;
       let stiffnessStatus: 'excellent' | 'good' | 'poor' | 'unloaded' = 'unloaded';
 
-      // Worst-case calculations (E24 5% tolerance drift)
+      // Worst-case calculations (1% for E96, 5% for E24)
       let wcVoutMin: number;
       let wcVoutMax: number;
 
@@ -233,11 +271,11 @@ export function findBestE24Pairs(
           stiffnessStatus = 'poor';
         }
 
-        // Worst-case (R1 +5%, R2 -5% for min; R1 -5%, R2 +5% for max)
-        const r1Max = r1 * 1.05;
-        const r1Min = r1 * 0.95;
-        const r2Min = r2 * 0.95;
-        const r2Max = r2 * 1.05;
+        // Worst-case (R1 max, R2 min for min; R1 min, R2 max for max)
+        const r1Max = r1 * tolHigh;
+        const r1Min = r1 * tolLow;
+        const r2Min = r2 * tolLow;
+        const r2Max = r2 * tolHigh;
         const r2EffMin = (r2Min * rlOhms) / (r2Min + rlOhms);
         const r2EffMax = (r2Max * rlOhms) / (r2Max + rlOhms);
         wcVoutMin = vinVolts * (r2EffMin / (r1Max + r2EffMin));
@@ -253,10 +291,10 @@ export function findBestE24Pairs(
         thevenin = (r1 * r2) / sum;
 
         // Worst-case without load
-        const r1Max = r1 * 1.05;
-        const r1Min = r1 * 0.95;
-        const r2Min = r2 * 0.95;
-        const r2Max = r2 * 1.05;
+        const r1Max = r1 * tolHigh;
+        const r1Min = r1 * tolLow;
+        const r2Min = r2 * tolLow;
+        const r2Max = r2 * tolHigh;
         wcVoutMin = vinVolts * (r2Min / (r1Max + r2Min));
         wcVoutMax = vinVolts * (r2Max / (r1Min + r2Max));
       }
@@ -265,7 +303,8 @@ export function findBestE24Pairs(
       if (current < 1e-6 || current > 100e-3) continue;
 
       const errorPct = Math.abs((actualVout - targetVoutVolts) / targetVoutVolts) * 100;
-      if (errorPct > 8.0) continue;
+      const maxAllowedErr = series === 'E96' ? 4.0 : 8.0;
+      if (errorPct > maxAllowedErr) continue;
 
       const wcErrMin = Math.abs((wcVoutMin - targetVoutVolts) / targetVoutVolts) * 100;
       const wcErrMax = Math.abs((wcVoutMax - targetVoutVolts) / targetVoutVolts) * 100;
@@ -436,8 +475,8 @@ export function findBestE24Pairs(
 
   for (let k = 0; k < count; k++) {
     const cand = selected[k];
-    const r1Dec = E24_DECOMPOSED_MAP.get(cand.r1) ?? decomposeOhms(cand.r1);
-    const r2Dec = E24_DECOMPOSED_MAP.get(cand.r2) ?? decomposeOhms(cand.r2);
+    const r1Dec = OHMS_DECOMPOSED_MAP.get(cand.r1) ?? decomposeOhms(cand.r1);
+    const r2Dec = OHMS_DECOMPOSED_MAP.get(cand.r2) ?? decomposeOhms(cand.r2);
     const curFmt = formatCurrent(cand.current);
     const rthFmt = formatResistance(cand.thevenin);
 
@@ -448,7 +487,7 @@ export function findBestE24Pairs(
       badge = 'ایده‌آل ADC (امپدانس کم)';
     } else if (appMode === 'biasing' && cand.biasStability === 'stiff' && k === 0) {
       badge = 'بایاس سفت و پایدار';
-    } else if (appMode === 'reference' && cand.worstCaseErrorPct <= 5.2 && k === 0) {
+    } else if (appMode === 'reference' && cand.worstCaseErrorPct <= (series === 'E96' ? 1.2 : 5.2) && k === 0) {
       badge = 'رفرنس کم‌نوسان';
     } else if (criterion === 'power' && k === 0) {
       badge = 'کم‌مصرف‌ترین';
@@ -493,6 +532,8 @@ export function findBestE24Pairs(
       biasStabilityLabel: cand.biasStabilityLabel,
       domainCategory: cand.domainCategory,
       domainCategoryLabel: cand.domainCategoryLabel,
+      series,
+      tolerancePct: series === 'E96' ? 1 : 5,
       overallScore: cand.score,
       badge,
       isLoaded: hasLoad,
