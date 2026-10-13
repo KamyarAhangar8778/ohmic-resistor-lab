@@ -262,15 +262,9 @@ export function findBestE24Pairs(
         const curB = Math.abs(b.current - 1e-3);
         return Math.abs(curA - curB) > 1e-5 ? curA - curB : a.errorPct - b.errorPct;
       }
-      case 'max_current': {
-        return b.current - a.current;
-      }
       case 'thevenin': {
         const thDiff = a.thevenin - b.thevenin;
         return Math.abs(thDiff) > 1 ? thDiff : a.errorPct - b.errorPct;
-      }
-      case 'max_thevenin': {
-        return b.thevenin - a.thevenin;
       }
       case 'overall':
       default: {

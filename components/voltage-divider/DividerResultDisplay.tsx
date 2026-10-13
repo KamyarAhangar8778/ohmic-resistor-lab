@@ -226,8 +226,25 @@ export const DividerResultDisplay = React.memo(function DividerResultDisplay({
               </div>
 
               <div className="flex items-center justify-between text-zinc-400">
-                <span className="font-sans text-[11px]">امپدانس خروجی (Rth):</span>
-                <span className="text-zinc-200 font-semibold font-mono tabular-nums" dir="ltr">{result.displayRth} {result.displayRthUnit}</span>
+                <span className="font-sans text-[11px]">امپدانس خروجی ADC (Rth):</span>
+                <div className="flex items-center gap-1.5" dir="ltr">
+                  <span className="text-zinc-200 font-semibold font-mono tabular-nums">{result.displayRth} {result.displayRthUnit}</span>
+                  <Badge
+                    variant={rth <= 10e3 ? 'success' : rth <= 50e3 ? 'subtle' : 'warning'}
+                    size="sm"
+                    className="font-sans text-[9px] py-0"
+                  >
+                    {rth <= 10e3 ? 'مستقیم (ADC OK)' : rth <= 50e3 ? 'سرعت پایین' : 'نیاز به بافر'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-zinc-400">
+                <span className="font-sans text-[11px] flex items-center gap-1">
+                  <span>جریان بارگذاری منبع سیگنال:</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">(I_in)</span>
+                </span>
+                <span className="text-zinc-200 font-semibold font-mono tabular-nums" dir="ltr">{result.displayCurrent} {result.displayCurrentUnit}</span>
               </div>
             </>
           )}

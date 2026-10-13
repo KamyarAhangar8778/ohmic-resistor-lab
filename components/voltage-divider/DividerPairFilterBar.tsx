@@ -59,9 +59,7 @@ const CRITERIA_OPTIONS: { id: PairSortCriterion; label: string }[] = [
   { id: 'overall', label: 'تعادل کلی' },
   { id: 'accuracy', label: 'بیشترین دقت' },
   { id: 'current', label: 'کمترین جریان' },
-  { id: 'max_current', label: 'بیشترین جریان خروجی' },
   { id: 'thevenin', label: 'کمترین امپدانس' },
-  { id: 'max_thevenin', label: 'بیشترین امپدانس خروجی' },
 ];
 
 const CURRENT_OPTIONS: { id: CurrentFilterOption; label: string }[] = [
@@ -129,9 +127,34 @@ export const DividerPairFilterBar = React.memo(function DividerPairFilterBar({
 
         {/* Right side: Series Selector & Prominent Load Resistor Telemetry */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Resistor Series (Fixed to E24 5%) */}
-          <div className="inline-flex items-center bg-zinc-950 border border-zinc-800 px-2.5 py-1 rounded-lg select-none text-xs font-mono text-emerald-300 font-bold" dir="ltr">
-            <span>E24 (۵٪)</span>
+          {/* Resistor Series (E24 5% vs E96 1%) */}
+          <div className="inline-flex items-center bg-zinc-950 border border-zinc-800 p-0.5 rounded-lg select-none" dir="ltr">
+            {(['E24', 'E96'] as ResistorSeriesOption[]).map((s) => {
+              const isSelected = series === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => onChangeSeries(s)}
+                  className={cn(
+                    'relative px-2.5 py-1 rounded text-xs font-mono font-medium transition-colors cursor-pointer',
+                    isSelected
+                      ? 'text-emerald-300 font-bold'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  )}
+                  title={s === 'E24' ? 'سری استاندارد تجاری E24 با تلورانس ۵٪' : 'سری دقیق تجاری E96 با تلورانس ۱٪'}
+                >
+                  {isSelected && (
+                    <motion.span
+                      layoutId="active-series-pill"
+                      className="absolute inset-0 rounded bg-emerald-950 border border-emerald-800/60 shadow-xs -z-10"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span>{s} {s === 'E24' ? '(۵٪)' : '(۱٪)'}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Prominent Load Status Indicator */}

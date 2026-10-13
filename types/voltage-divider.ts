@@ -21,7 +21,7 @@ export type DividerApplicationMode = 'sampling' | 'biasing' | 'reference';
 
 export type ResistorSeriesOption = 'E24' | 'E96';
 
-export type PairSortCriterion = 'accuracy' | 'power' | 'current' | 'thevenin' | 'max_current' | 'max_thevenin' | 'overall';
+export type PairSortCriterion = 'accuracy' | 'power' | 'current' | 'thevenin' | 'overall';
 
 export type PairTableSortKey =
   | 'score'
